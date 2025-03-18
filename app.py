@@ -9,24 +9,27 @@ app = FastAPI()
 
 @app.post("/voice-chat")
 async def voice_chat(audio: UploadFile = File(...)):
-    # Read audio file from frontend
-    audio_bytes = await audio.read()
-
-    # Step 1: ASR - Convert audio to text
-    transcript = transcribe_audio(audio_bytes)
-
-    # Step 2: LLM - Generate response
-    response_text = generate_response(transcript)
-
-    # Step 3: TTS - Convert response to audio
-    audio_response = text_to_speech(response_text)
-
-    # Return audio as a streaming response
-    return StreamingResponse(
-        io.BytesIO(audio_response),
-        media_type="audio/mp3",
-        headers={"transcript": transcript, "response": response_text}
-    )
+    try:
+        # Read audio file from frontend
+        audio_bytes = await audio.read()
+    
+        # Step 1: ASR - Convert audio to text
+        transcript = transcribe_audio(audio_bytes)
+    
+        # Step 2: LLM - Generate response
+        response_text = generate_response(transcript)
+    
+        # Step 3: TTS - Convert response to audio
+        audio_response = text_to_speech(response_text)
+    
+        # Return audio as a streaming response
+        return StreamingResponse(
+            io.BytesIO(audio_response),
+            media_type="audio/mp3",
+            headers={"transcript": transcript, "response": response_text}
+        )
+    except Exception as e:
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     import uvicorn

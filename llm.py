@@ -9,9 +9,12 @@ def generate_response(transcript: str, chat_history: list = []) -> str:
         *chat_history,
         {"role": "user", "content": transcript}
     ]
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        messages=messages,
-        max_tokens=150
-    )
-    return response.choices[0].message.content
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            max_tokens=150
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Error generating response: {str(e)}"
